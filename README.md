@@ -21,6 +21,12 @@ Thus, if you encounter 64-bits shellcodes performing dynamic import / API Hashin
 This fork aims at adding this functionnality!
 It's heavily based on @Frky's original PR that you can find [here](https://github.com/cea-sec/miasm/commit/9af68a0415d28211517d61abf21909fd98c44b97) (with some adjustments like adding LdrDataEntry64 structs), so thank him for his work!
 
+Things to be added (maybe) in the future:
+ * Better support for "MOV RAX, QWORD PTR GS:[60]" like instructions (retrieves PEB address) \
+   In the meantime can be circumvented by adding breakpoints on such instructions and manually returning PEB's address in the breakpoint_callback()
+ * Porting most common WinAPI functions to 64-bits version (./miasm/os_dep/win_api_x86_32.py --> win_api_x86_64.py) \
+   In the meantime can be circumvented by reimplementing needed functions directly in your emulator's script
+
 What is Miasm?
 ==============
 
