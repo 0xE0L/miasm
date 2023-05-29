@@ -187,14 +187,14 @@ class OS_Win(OS):
     ALL_IMP_DLL = [
         "ntdll.dll", "kernel32.dll", "user32.dll",
         "ole32.dll", "urlmon.dll",
-        "ws2_32.dll", 'advapi32.dll', "psapi.dll",
+        "ws2_32.dll", 'advapi32.dll', "psapi.dll", "wininet.dll"
     ]
     modules_path = "win_dll"
 
     def __init__(self, custom_methods, *args, **kwargs):
         from miasm.jitter.loader.pe import vm_load_pe, vm_load_pe_libs,\
             preload_pe, libimp_pe, vm_load_pe_and_dependencies
-        from miasm.os_dep import win_api_x86_32, win_api_x86_32_seh
+        from miasm.os_dep import win_api_x86_32, win_api_x86_32_seh, win_api_x86_64_seh # import "win_api_x86_64_seh" for Win64 sandbox
         methods = dict((name, func) for name, func in viewitems(win_api_x86_32.__dict__))
         methods.update(custom_methods)
 
@@ -260,12 +260,20 @@ class OS_Win(OS):
 
         # Manage SEH
         if self.options.use_windows_structs:
-            win_api_x86_32_seh.main_pe_name = fname_basename
-            win_api_x86_32_seh.main_pe = self.pe
-            win_api_x86_32.winobjs.hcurmodule = self.pe.NThdr.ImageBase
-            win_api_x86_32_seh.name2module = self.name2module
-            win_api_x86_32_seh.set_win_fs_0(self.jitter)
-            win_api_x86_32_seh.init_seh(self.jitter)
+            if self.jitter.attrib == 32: # switch between Win32 or Win64 sandbox
+                win_api_x86_32_seh.main_pe_name = fname_basename
+                win_api_x86_32_seh.main_pe = self.pe
+                win_api_x86_32.winobjs.hcurmodule = self.pe.NThdr.ImageBase
+                win_api_x86_32_seh.name2module = self.name2module
+                win_api_x86_32_seh.set_win_fs_0(self.jitter)
+                win_api_x86_32_seh.init_seh(self.jitter)
+            else:
+                win_api_x86_64_seh.main_pe_name = fname_basename
+                win_api_x86_64_seh.main_pe = self.pe
+                win_api_x86_32.winobjs.hcurmodule = self.pe.NThdr.ImageBase
+                win_api_x86_64_seh.name2module = self.name2module
+                win_api_x86_64_seh.set_win_fs_0(self.jitter)
+                win_api_x86_64_seh.init_seh_64(self.jitter)
 
         self.entry_point = self.pe.rva2virt(
             self.pe.Opthdr.AddressOfEntryPoint)

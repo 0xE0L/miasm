@@ -8,6 +8,18 @@
 <img src="https://raw.githubusercontent.com/cea-sec/miasm/master/doc/logo_miasm.png">
 </p>
 
+Miasm fork for Win64 sandboxes
+==============
+
+This fork was created to permit using Windows 64-bits structures (TEB, PEB, PEB_LDR_DATA etc) on Win64 sandbox, using the usual option `--use-windows-structs`.
+Indeed, as you can see here Miasm doesn't support Win64 structures as for now:
+ * https://github.com/cea-sec/miasm/issues/647
+ * https://github.com/cea-sec/miasm/pull/1127 (PR by user @Frky)
+
+Thus, if you encounter 64-bits shellcodes performing dynamic import / API Hashing (that will typically parse PEB --> PEB->Ldr --> InMemoryOrderModuleList --> parse module's EAT), you won't be able to sandbox it.
+
+This fork aims at adding this functionnality!
+It's heavily based on @Frky's original PR that you can find [here](https://github.com/cea-sec/miasm/commit/9af68a0415d28211517d61abf21909fd98c44b97) (with some adjustments like adding LdrDataEntry64 structs), so thank him for his work!
 
 What is Miasm?
 ==============
